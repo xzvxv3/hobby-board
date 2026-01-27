@@ -29,7 +29,7 @@ public class ApiController {
                 .toList();
 
         // 디버그
-        log.info("조회딘 게시글 개수: {}", result.size());
+        log.info("조회된 게시글 개수: {}", result.size());
         log.debug("상세 데이터: {}", result);
 
         return ResponseEntity.ok(result);
