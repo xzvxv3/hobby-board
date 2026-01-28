@@ -1,3 +1,14 @@
 INSERT INTO post (title, content) VALUES ('첫 번째 게시글', '1111');
 INSERT INTO post (title, content) VALUES ('두 번째 게시글', '2222');
 INSERT INTO post (title, content) VALUES ('세 번째 게시글', '3333');
+INSERT INTO post (title, content) VALUES ('네 번째 게시글', '4444');
+INSERT INTO post (title, content) VALUES ('다섯 번째 게시글', '5555');
+INSERT INTO post (title, content) VALUES ('여섯 번째 게시글', '6666');
+INSERT INTO post (title, content) VALUES ('일곱 번째 게시글', '7777');
+INSERT INTO post (title, content) VALUES ('여덞 번째 게시글', '8888');
+INSERT INTO post (title, content) VALUES ('아홉 번째 게시글', '9999');
+INSERT INTO post (title, content) VALUES ('열 번째 게시글', '10101010');
+INSERT INTO post (title, content) VALUES ('열한 번째 게시글', '11111111');
+INSERT INTO post (title, content) VALUES ('열두 번째 게시글', '12121212');
+INSERT INTO post (title, content) VALUES ('열세 번째 게시글', '13131313');
+INSERT INTO post (title, content) VALUES ('열네 번째 게시글', '14141414');
