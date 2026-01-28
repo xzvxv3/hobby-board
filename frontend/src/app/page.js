@@ -85,12 +85,58 @@ export default async function Home({ searchParams}) {
                   <ChevronLeft size={18} />
                 </PageButton>
 
-                {/* 페이지 번호 (간단하게 현재 페이지 표시) */}
-                <div className="flex items-center gap-1 px-4">
-                  <span className="text-sm font-bold text-emerald-600">{currentPage}</span>
-                  <span className="text-sm text-zinc-400">/</span>
-                  <span className="text-sm text-zinc-500">{totalPages}</span>
-                </div>
+                {/* 숫자 페이지 버튼 + ellipsis */}
+                {(() => {
+                  const maxVisible = 5;
+                  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+                  // 끝부분 조정 (총 페이지가 적을 때)
+                  if (endPage - startPage + 1 < maxVisible) {
+                    startPage = Math.max(1, endPage - maxVisible + 1);
+                  }
+
+                  const pages = [];
+
+                  // 첫 페이지 항상 표시 + 필요시 ellipsis
+                  if (startPage > 1) {
+                    pages.push(
+                        <PageButton key={1} href="?page=1" currentPage={currentPage}>
+                          1
+                        </PageButton>
+                    );
+                    if (startPage > 2) {
+                      pages.push(<span key="left-ellipsis" className="px-2 text-zinc-400">...</span>);
+                    }
+                  }
+
+                  // 가운데 페이지들
+                  for (let page = startPage; page <= endPage; page++) {
+                    pages.push(
+                        <PageButton
+                            key={page}
+                            href={`?page=${page}`}
+                            currentPage={currentPage}
+                        >
+                          {page}
+                        </PageButton>
+                    );
+                  }
+
+                  // 마지막 페이지 항상 표시 + 필요시 ellipsis
+                  if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                      pages.push(<span key="right-ellipsis" className="px-2 text-zinc-400">...</span>);
+                    }
+                    pages.push(
+                        <PageButton key={totalPages} href={`?page=${totalPages}`} currentPage={currentPage}>
+                          {totalPages}
+                        </PageButton>
+                    );
+                  }
+
+                  return pages;
+                })()}
 
                 {/* 다음 페이지 */}
                 <PageButton href={`?page=${currentPage + 1}`} disabled={currentPage >= totalPages}>
@@ -118,12 +164,44 @@ export default async function Home({ searchParams}) {
   );
 }
 
-function PageButton({ href, children, disabled }) {
+function PageButton({
+                      href,
+                      children,
+                      disabled,
+                      className = "",
+                      currentPage,   // ← 새로 추가: Home에서 currentPage를 prop으로 넘겨줌
+                    }) {
+  const baseClass = "px-3 py-1.5 text-sm rounded-md transition-colors";
+
+  // 기본 텍스트 색상: disabled 여부와 상관없이 zinc-600으로 통일
+  const textColor = "text-zinc-600 dark:text-zinc-400";
+
+  // 현재 페이지인지 href로 판단 (예: href="?page=3" → page=3)
+  const pageFromHref = href?.match(/\?page=(\d+)/)?.[1];
+  const isCurrentPage = pageFromHref && Number(pageFromHref) === currentPage;
+
+  // 현재 페이지일 때만 에메랄드 강조
+  const currentStyle = isCurrentPage
+      ? "font-bold !text-emerald-600 dark:!text-emerald-400"
+      : "";
+
+  // disabled 스타일 (색상 변화 없이 커서만 변경)
+  const disabledStyle = disabled
+      ? "cursor-not-allowed opacity-70"
+      : "hover:text-emerald-700 dark:hover:text-emerald-300";
+
+  const combinedClass = `${baseClass} ${textColor} ${disabledStyle} ${className} ${currentStyle}`;
+
   if (disabled) {
-    return <span className="p-2 text-zinc-300 cursor-not-allowed">{children}</span>;
+    return (
+        <span className={combinedClass}>
+        {children}
+      </span>
+    );
   }
+
   return (
-      <Link href={href} className="p-2 text-zinc-500 hover:text-emerald-600 transition-colors">
+      <Link href={href} className={combinedClass}>
         {children}
       </Link>
   );
