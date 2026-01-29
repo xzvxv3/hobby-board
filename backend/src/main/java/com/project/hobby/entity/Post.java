@@ -18,4 +18,10 @@ public class Post {
     private String title;
     private String content;
     private String author;
+    private String date;
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
