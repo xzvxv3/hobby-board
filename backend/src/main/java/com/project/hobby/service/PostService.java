@@ -1,16 +1,16 @@
 package com.project.hobby.service;
 
 import com.project.hobby.PostRepository;
-import com.project.hobby.dto.PostDetailResponse;
-import com.project.hobby.dto.PostListResponse;
-import com.project.hobby.dto.PostUpdateRequest;
-import com.project.hobby.dto.PostUpdateResponse;
+import com.project.hobby.dto.*;
 import com.project.hobby.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 게시글 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -20,6 +20,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
+
+    /**
+     * 신규 게시글을 생성하여 저장합니다.
+     * @param requestDto 등록 요청 데이터 (DTO)
+     * @return 저장된 게시글의 ID
+     */
+    @Transactional
+    public Long save(PostCreateRequest requestDto) {
+        Post post = Post.builder()
+                .author(requestDto.author())
+                .title(requestDto.title())
+                .content(requestDto.content())
+                .date(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
+
+        return postRepository.save(post).getId();
+    }
 
     /**
      * 전체 게시글 목록을 페이징하여 조회합니다.

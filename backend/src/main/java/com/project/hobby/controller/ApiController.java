@@ -1,9 +1,6 @@
 package com.project.hobby.controller;
 
-import com.project.hobby.dto.PostDetailResponse;
-import com.project.hobby.dto.PostListResponse;
-import com.project.hobby.dto.PostUpdateRequest;
-import com.project.hobby.dto.PostUpdateResponse;
+import com.project.hobby.dto.*;
 import com.project.hobby.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +22,17 @@ import org.springframework.data.web.PageableDefault;
 public class ApiController {
 
     private final PostService postService;
+
+    /**
+     * 신규 게시글 등록
+     * @param requestDto 등록할 게시글 정보 (제목, 내용, 작성자)
+     * @return 생성된 게시글의 데이터베이스 ID
+     */
+    @PostMapping("/posts")
+    public ResponseEntity<Long> save(@RequestBody PostCreateRequest requestDto) {
+        log.info("[POST] 게시글 등록 수행 - Author: {}, Title: {}, Content: {}", requestDto.author(), requestDto.title(), requestDto.content());
+        return ResponseEntity.ok(postService.save(requestDto));
+    }
 
     /**
      * 게시글 목록 조회 (페이징 처리)
