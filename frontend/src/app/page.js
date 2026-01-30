@@ -57,7 +57,7 @@ export default async function Home({ searchParams}) {
                   <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:pl-6">제목</th>
                   <th className="hidden w-32 px-3 py-3.5 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-100 lg:table-cell">작성자</th>
                   <th className="hidden w-28 px-3 py-3.5 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:table-cell">날짜</th>
-                  <th className="w-20 py-3.5 pl-3 pr-6 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-100">관리</th>
+                  <th className="w-20 py-3.5 pl-3 pr-11 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-100">관리</th>
                 </tr>
                 </thead>
 
@@ -67,7 +67,7 @@ export default async function Home({ searchParams}) {
                         key={post.id}
                         post={post}
                         index={post.isEmpty ? "" : totalElements - ((currentPage - 1) * pageSize) - index}
-                        total={post.isEmpty}
+                        isEmpty={post.isEmpty}
                     />
                 ))}
                 </tbody>

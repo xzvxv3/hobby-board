@@ -25,8 +25,7 @@ export default function NewPostPage() {
             throw new Error("게시글 등록에 실패했습니다.");
         }
 
-        const newId = await res.json();
-        redirect(`/${newId}`);
+        redirect("/");
     }
 
     return (
