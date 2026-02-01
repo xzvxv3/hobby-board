@@ -53,11 +53,10 @@ export default async function Home({ searchParams}) {
               <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-800">
                 <thead className="bg-zinc-50 dark:bg-zinc-800/50">
                 <tr>
-                  <th className="w-16 py-3.5 pl-6 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100">번호</th>
+                  <th className="w-20 py-3.5 pl-6 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100">번호</th>
                   <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:pl-6">제목</th>
-                  <th className="hidden w-32 px-3 py-3.5 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-100 lg:table-cell">작성자</th>
-                  <th className="hidden w-28 px-3 py-3.5 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:table-cell">날짜</th>
-                  <th className="w-20 py-3.5 pl-3 pr-11 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-100">관리</th>
+                  <th className="hidden w-35 px-3 py-3.5 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-100 lg:table-cell">작성자</th>
+                  <th className="hidden w-70 px-3 py-3.5 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:table-cell">날짜</th>
                 </tr>
                 </thead>
 

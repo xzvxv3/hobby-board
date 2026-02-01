@@ -36,31 +36,6 @@ export default function PostCard({ post, index, isEmpty = false }) {
             <td className="hidden whitespace-nowrap px-3 py-4 text-center text-sm text-zinc-500 sm:table-cell">
                 {post.date}
             </td>
-            <td className="whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
-                <div className="flex items-center justify-end gap-1">
-                    {/* 수정 버튼: 클릭 시 해당 글의 수정 페이지로 이동 */}
-                    <Link
-                        href={`/${post.id}/edit`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="rounded p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800"
-                    >
-                        <Pencil size={16} />
-                    </Link>
-                    {/* 삭제 버튼 */}
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`${post.id}번 글을 정말 삭제하시겠습니까?`)) {
-                                console.log(`삭제 요청: ${post.id}`);
-                                // 실제 삭제 fetch 로직 추가 가능
-                            }
-                        }}
-                        className="rounded p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
-            </td>
         </tr>
     );
 }
