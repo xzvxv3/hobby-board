@@ -14,7 +14,6 @@ export default function PostCard({ post, index, isEmpty = false }) {
                 <td className="py-4 pl-4">&nbsp;</td>
                 <td className="hidden py-4 lg:table-cell">&nbsp;</td>
                 <td className="hidden py-4 sm:table-cell">&nbsp;</td>
-                <td className="py-4 pr-6">&nbsp;</td>
             </tr>
         );
     }
