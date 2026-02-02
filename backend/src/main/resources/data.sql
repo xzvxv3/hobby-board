@@ -1,0 +1,14 @@
+INSERT INTO post (title, content, author, date) VALUES ('아삭한 사과', '빨갛게 익어 비타민이 풍부하고 아침에 먹기 좋습니다.', 'James', '2024-01-05 10:20:00');
+INSERT INTO post (title, content, author, date) VALUES ('달콤한 바나나', '부드러운 식감과 높은 당도로 에너지를 빠르게 보충해줍니다.', 'Emma', '2024-01-12 14:15:30');
+INSERT INTO post (title, content, author, date) VALUES ('상큼한 딸기', '새콤달콤한 맛과 향이 일품인 봄의 전령사 과일입니다.', 'Liam', '2024-01-18 09:45:12');
+INSERT INTO post (title, content, author, date) VALUES ('시원한 수박', '여름철 수분 보충에 최고인 과일로 속이 꽉 차 있습니다.', 'Olivia', '2024-02-02 22:10:05');
+INSERT INTO post (title, content, author, date) VALUES ('보랏빛 포도', '알알이 맺힌 달콤한 과즙이 입안 가득 퍼지는 매력이 있습니다.', 'Noah', '2024-02-08 11:30:45');
+INSERT INTO post (title, content, author, date) VALUES ('향긋한 복숭아', '부드러운 과육과 은은한 향이 매력적인 여름 과일입니다.', 'Ava', '2024-02-14 13:05:22');
+INSERT INTO post (title, content, author, date) VALUES ('노란 망고', '열대의 향을 가득 담아 진한 달콤함을 선사하는 과일입니다.', 'Ethan', '2024-02-21 17:50:00');
+INSERT INTO post (title, content, author, date) VALUES ('새콤한 오렌지', '비타민 C가 가득해 피로 회복과 피부 미용에 아주 좋습니다.', 'Sophia', '2024-03-01 08:20:15');
+INSERT INTO post (title, content, author, date) VALUES ('탱글한 블루베리', '안토시아닌이 풍부하여 눈 건강에 도움을 주는 슈퍼푸드입니다.', 'Mason', '2024-03-05 19:40:33');
+INSERT INTO post (title, content, author, date) VALUES ('달콤한 멜론', '고급스러운 향과 부드러운 과즙이 특징인 인기 과일입니다.', 'Isabella', '2024-03-10 12:00:00');
+INSERT INTO post (title, content, author, date) VALUES ('상큼한 키위', '작은 알갱이가 톡톡 씹히며 소화를 돕는 영양 만점 과일입니다.', 'Lucas', '2024-03-15 15:25:10');
+INSERT INTO post (title, content, author, date) VALUES ('단단한 감', '가을의 정취를 담은 달콤하고 아삭한 식감의 과일입니다.', 'Mia', '2024-03-18 21:10:55');
+INSERT INTO post (title, content, author, date) VALUES ('새콤달콤 자두', '껍질째 먹으면 상큼함이 배가 되는 여름 별미 과일입니다.', 'Oliver', '2024-03-22 10:05:40');
+INSERT INTO post (title, content, author, date) VALUES ('상큼한 파인애플', '강한 단맛과 산미가 어우러져 요리에도 자주 쓰이는 과일입니다.', 'Charlotte', '2024-03-25 23:59:59');
