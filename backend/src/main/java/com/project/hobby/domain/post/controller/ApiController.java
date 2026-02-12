@@ -1,7 +1,7 @@
-package com.project.hobby.controller;
+package com.project.hobby.domain.post.controller;
 
-import com.project.hobby.dto.*;
-import com.project.hobby.service.PostService;
+import com.project.hobby.domain.post.dto.*;
+import com.project.hobby.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
