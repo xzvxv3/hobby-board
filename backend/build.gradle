@@ -25,24 +25,24 @@ repositories {
 }
 
 dependencies {
+
+	// Spring Web
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	// Spring Security (로그인/로그아웃, 권한 제어)
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// Validation (DTO에서 @NotBlank, @Email 등을 사용하기 위함)
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	implementation 'org.springframework.boot:spring-boot-h2console'
+	// JPA & DB
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-mustache'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+	// 롬복
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-mustache-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
