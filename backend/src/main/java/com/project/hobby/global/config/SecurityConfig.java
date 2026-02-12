@@ -19,8 +19,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // API 테스트를 위해 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
                         // 1. 게시판 조회 및 회원가입은 로그인 없이도 가능하게 허용
-                        .requestMatchers(new AntPathRequestMatcher("/api/posts/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/users/join")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
 
                         // 2. H2 콘솔 접근 허용
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
