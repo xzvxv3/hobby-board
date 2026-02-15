@@ -46,7 +46,9 @@ export default async function Home({ searchParams}) {
               <h2 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-200">
                 자유게시판
               </h2>
-              <Button>로그인</Button>
+              <Link href="/login">
+                <Button>로그인</Button>
+              </Link>
             </div>
 
             <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
