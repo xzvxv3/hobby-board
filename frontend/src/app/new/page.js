@@ -2,8 +2,17 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Button from "@/components/Button";
+import { auth } from "@/lib/auth";
 
-export default function NewPostPage() {
+export default async function NewPostPage() {
+    // 서버에서 세션 확인 (middleware가 이미 막아주지만, 방어적으로 한 번 더 체크)
+    const session = await auth();
+
+    if (!session?.user) {
+        // 로그인 안 된 경우 → 로그인 페이지로 리다이렉트 (middleware와 중복 체크)
+        redirect("/login");
+    }
+
     async function createPost(formData) {
         "use server";
 

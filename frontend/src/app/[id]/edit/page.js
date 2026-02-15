@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Button from "@/components/Button";
+import { auth } from "@/lib/auth";
 
 async function getPostForEdit(id) {
     const res = await fetch(`http://localhost:8080/api/posts/${id}/edit`, {
@@ -15,6 +16,11 @@ export default async function EditPostPage(props) {
     const params = await props.params;
     const id = params.id;
 
+    const session = await auth();
+    if (!session?.user) {
+        redirect("/login");
+    }
+
     const post = await getPostForEdit(id);
 
     if (!post) {
@@ -23,6 +29,19 @@ export default async function EditPostPage(props) {
                 <p className="text-xl text-zinc-500">게시글을 찾을 수 없습니다.</p>
                 <Link href="/">
                     <Button>목록으로</Button>
+                </Link>
+            </div>
+        );
+    }
+
+    const isAuthor = post.authorId === session.user.id || post.author === session.user.name;
+
+    if (!isAuthor) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+                <p className="text-xl text-red-600 dark:text-red-400">이 게시글을 수정할 권한이 없습니다.</p>
+                <Link href={`/${id}`}>
+                    <Button variant="outline">게시글 보기</Button>
                 </Link>
             </div>
         );
