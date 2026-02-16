@@ -23,9 +23,9 @@ export const {
                 // 임시로 성공했다고 가정 (나중에 실제 백엔드 연결)
                 // 실제로는 fetch로 백엔드 호출
                 return {
-                    id: "temp-" + credentials.username,
+                    id: String(credentials.id),
                     name: credentials.username,
-                    email: null,
+                    email: credentials.email || null,
                 }
             },
         }),

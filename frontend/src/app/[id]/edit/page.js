@@ -34,7 +34,14 @@ export default async function EditPostPage(props) {
         );
     }
 
-    const isAuthor = post.authorId === session.user.id || post.author === session.user.name;
+    const isAuthor = post.author === session.user.name;
+
+    console.log("[권한 체크]", {
+        sessionUser: session.user.name,
+        postAuthor: post.author,
+        isAuthor,
+        postId: id
+    });
 
     if (!isAuthor) {
         return (
@@ -44,7 +51,7 @@ export default async function EditPostPage(props) {
                     <Button variant="outline">게시글 보기</Button>
                 </Link>
             </div>
-        );
+        )
     }
 
     async function updatePost(formData) {

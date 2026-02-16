@@ -5,11 +5,9 @@ import Button from "@/components/Button";
 import { auth } from "@/lib/auth";
 
 export default async function NewPostPage() {
-    // 서버에서 세션 확인 (middleware가 이미 막아주지만, 방어적으로 한 번 더 체크)
     const session = await auth();
 
     if (!session?.user) {
-        // 로그인 안 된 경우 → 로그인 페이지로 리다이렉트 (middleware와 중복 체크)
         redirect("/login");
     }
 
@@ -18,11 +16,14 @@ export default async function NewPostPage() {
 
         const title = formData.get("title")?.toString().trim();
         const content = formData.get("content")?.toString().trim();
-        const author = formData.get("author")?.toString().trim() || "익명";
+        const isAnonymous = formData.get("isAnonymous") === "on"; // 체크박스 값 "on"이면 익명
 
         if (!title || !content) {
             throw new Error("제목과 내용을 모두 입력해주세요.");
         }
+
+        // 작성자 결정 로직
+        const author = isAnonymous ? "익명" : (session.user.name || "사용자");
 
         const res = await fetch("http://localhost:8080/api/posts", {
             method: "POST",
@@ -54,6 +55,11 @@ export default async function NewPostPage() {
                     새 게시글 작성
                 </h1>
 
+                {/* 로그인 사용자 환영 메시지 */}
+                <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+                    {session.user.name ? `${session.user.name}님, 자유롭게 작성해주세요!` : ""}
+                </p>
+
                 <form action={createPost} className="space-y-6">
                     <div>
                         <label
@@ -75,23 +81,6 @@ export default async function NewPostPage() {
 
                     <div>
                         <label
-                            htmlFor="author"
-                            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                        >
-                            작성자 (선택)
-                        </label>
-                        <input
-                            type="text"
-                            id="author"
-                            name="author"
-                            maxLength={30}
-                            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 focus:border-emerald-500 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                            placeholder="익명으로 작성하려면 비워두세요"
-                        />
-                    </div>
-
-                    <div>
-                        <label
                             htmlFor="content"
                             className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                         >
@@ -107,7 +96,23 @@ export default async function NewPostPage() {
                         />
                     </div>
 
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-between gap-3">
+                        {/* 체크박스만 추가 */}
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="isAnonymous"
+                                name="isAnonymous"
+                                className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 dark:border-zinc-600 dark:bg-zinc-800"
+                            />
+                            <label
+                                htmlFor="isAnonymous"
+                                className="text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer"
+                            >
+                                익명으로 작성하기
+                            </label>
+                        </div>
+
                         <Button type="submit" variant="success">
                             등록하기
                         </Button>

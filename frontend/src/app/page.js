@@ -55,8 +55,8 @@ export default async function Home({ searchParams}) {
                   <div className="flex items-center gap-3">
                     {/* 사용자 이름 표시 */}
                     <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {session.user.name || session.user.id.slice(0, 8)}
-                </span>
+                      {session.user.name || session.user.id.slice(0, 8)}님, 안녕하세요
+                    </span>
 
                     {/* 로그아웃 버튼 */}
                     <form
@@ -65,9 +65,7 @@ export default async function Home({ searchParams}) {
                           await signOut({ redirectTo: "/" });
                         }}
                     >
-                      <Button variant="outline" type="submit" size="sm">
-                        로그아웃
-                      </Button>
+                      <Button variant="danger">로그아웃</Button>
                     </form>
                   </div>
               ) : (
