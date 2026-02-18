@@ -1,6 +1,6 @@
-package com.project.hobby.dto;
+package com.project.hobby.domain.post.dto;
 
-import com.project.hobby.entity.Post;
+import com.project.hobby.domain.post.entity.Post;
 
 public record PostDetailResponse(String author, String title, String content, String date) {
     public static PostDetailResponse from(Post post) {

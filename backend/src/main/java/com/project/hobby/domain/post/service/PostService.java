@@ -1,8 +1,9 @@
-package com.project.hobby.service;
+package com.project.hobby.domain.post.service;
 
-import com.project.hobby.PostRepository;
+import com.project.hobby.domain.post.repository.PostRepository;
+import com.project.hobby.domain.post.dto.*;
 import com.project.hobby.dto.*;
-import com.project.hobby.entity.Post;
+import com.project.hobby.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

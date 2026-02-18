@@ -1,6 +1,6 @@
-package com.project.hobby;
+package com.project.hobby.domain.post.repository;
 
-import com.project.hobby.entity.Post;
+import com.project.hobby.domain.post.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
