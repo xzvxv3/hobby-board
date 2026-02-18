@@ -2,16 +2,12 @@ package com.project.hobby.domain.post.service;
 
 import com.project.hobby.domain.post.repository.PostRepository;
 import com.project.hobby.domain.post.dto.*;
-import com.project.hobby.dto.*;
 import com.project.hobby.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * 게시글 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -29,14 +25,7 @@ public class PostService {
      */
     @Transactional
     public Long save(PostCreateRequest requestDto) {
-        Post post = Post.builder()
-                .author(requestDto.author())
-                .title(requestDto.title())
-                .content(requestDto.content())
-                .date(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .build();
-
-        return postRepository.save(post).getId();
+        return postRepository.save(requestDto.toEntity()).getId();
     }
 
     /**
@@ -101,7 +90,6 @@ public class PostService {
     public void delete(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다 id=" + id));
-
         postRepository.delete(post);
     }
 }
