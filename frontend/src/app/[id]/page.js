@@ -5,6 +5,7 @@ import { ArrowLeft, Pencil, Trash2 } from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
 import Button from "@/components/Button"
+import CommentSection from "./components/CommentSection";
 
 export default function PostDetailPage() {
     const router = useRouter()
@@ -130,6 +131,7 @@ export default function PostDetailPage() {
                         </p>
                     </div>
                 </article>
+                <CommentSection postId={id} />
             </div>
         </div>
     );
