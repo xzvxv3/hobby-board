@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { format } from 'date-fns'
-import { Send, Trash2 } from 'lucide-react'
+import { Send, Trash2, Edit2, Check } from 'lucide-react'
 
 // 날짜 안전 포맷팅 헬퍼 함수
 const formatDate = (dateStr) => {
@@ -20,6 +20,8 @@ export default function CommentSection({ postId }) {
     const [comments, setComments] = useState([])
     const [newComment, setNewComment] = useState('')
     const [isPending, startTransition] = useTransition()
+    const [editingCommentId, setEditingCommentId] = useState(null)
+    const [editingContent, setEditingContent] = useState('')
 
     // 댓글 목록 불러오기
     useEffect(() => {
@@ -121,6 +123,79 @@ export default function CommentSection({ postId }) {
         })
     }
 
+    // 댓글 수정 시작
+    const startEdit = (commentId, currentContent) => {
+        setEditingCommentId(commentId)
+        setEditingContent(currentContent)
+    }
+
+    // 댓글 수정 취소
+    const cancelEdit = () => {
+        setEditingCommentId(null)
+        setEditingContent('')
+    }
+
+    // 댓글 수정 완료 (수동 optimistic)
+    const handleUpdate = (commentId) => {
+        if (!editingContent.trim()) {
+            alert('댓글 내용이 비어있습니다.')
+            return
+        }
+
+        // 원본 백업 (실패 시 롤백용)
+        const originalComment = comments.find(c => c.id === commentId)
+        if (!originalComment) return
+
+        // 즉시 업데이트 (optimistic)
+        setComments(prev =>
+            prev.map(c =>
+                c.id === commentId
+                    ? { ...c, content: editingContent.trim(), isPending: true }
+                    : c
+            )
+        )
+
+        // 편집 모드 종료
+        setEditingCommentId(null)
+        setEditingContent('')
+
+        startTransition(async () => {
+            try {
+                const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
+                    method: 'PUT', // 또는 PUT, 백엔드에 따라 조정
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: editingContent.trim()
+                    })
+                })
+
+                if (!res.ok) {
+                    throw new Error(await res.text())
+                }
+
+                // 성공 시 pending 플래그 제거
+                setComments(prev =>
+                    prev.map(c =>
+                        c.id === commentId
+                            ? { ...c, isPending: false }
+                            : c
+                    )
+                )
+            } catch (err) {
+                console.error('댓글 수정 실패:', err)
+                // 실패 시 원본으로 롤백
+                setComments(prev =>
+                    prev.map(c =>
+                        c.id === commentId
+                            ? { ...originalComment, isPending: false }
+                            : c
+                    )
+                )
+                alert('댓글 수정에 실패했습니다.')
+            }
+        })
+    }
+
     return (
         <div className="mt-12">
             <h2 className="text-xl font-bold mb-6 text-emerald-600">
@@ -130,13 +205,13 @@ export default function CommentSection({ postId }) {
             {/* 댓글 입력 폼 */}
             <form onSubmit={handleSubmit} className="mb-10">
                 <div className="flex gap-3">
-          <textarea
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              placeholder="댓글을 입력해주세요..."
-              className="flex-1 min-h-[80px] p-4 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-800"
-              disabled={isPending}
-          />
+                    <textarea
+                        value={newComment}
+                        onChange={e => setNewComment(e.target.value)}
+                        placeholder="댓글을 입력해주세요..."
+                        className="flex-1 min-h-[80px] p-4 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-800"
+                        disabled={isPending}
+                    />
                     <button
                         type="submit"
                         disabled={isPending || !newComment.trim()}
@@ -167,21 +242,53 @@ export default function CommentSection({ postId }) {
                             </time>
                         </div>
 
-                        <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                            {comment.content}
-                        </p>
+                        {editingCommentId === comment.id ? (
+                            <textarea
+                                value={editingContent}
+                                onChange={e => setEditingContent(e.target.value)}
+                                className="w-full min-h-[60px] p-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-800"
+                                autoFocus
+                            />
+                        ) : (
+                            <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
+                                {comment.content}
+                            </p>
+                        )}
 
                         {!comment.isPending && (
                             <div className="mt-3 flex gap-4 text-sm text-zinc-500">
-                                <button className="hover:text-zinc-800 transition-colors">
-                                    수정
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(comment.id)}
-                                    className="hover:text-red-600 transition-colors"
-                                >
-                                    삭제
-                                </button>
+                                {editingCommentId === comment.id ? (
+                                    <>
+                                        <button
+                                            onClick={() => handleUpdate(comment.id)}
+                                            className="hover:text-emerald-600 transition-colors flex items-center"
+                                            disabled={!editingContent.trim()}
+                                        >
+                                            <Check size={16} className="mr-1" /> 완료
+                                        </button>
+                                        <button
+                                            onClick={cancelEdit}
+                                            className="hover:text-zinc-800 transition-colors"
+                                        >
+                                            취소
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => startEdit(comment.id, comment.content)}
+                                            className="hover:text-zinc-800 transition-colors flex items-center"
+                                        >
+                                            <Edit2 size={16} className="mr-1" /> 수정
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(comment.id)}
+                                            className="hover:text-red-600 transition-colors flex items-center"
+                                        >
+                                            <Trash2 size={16} className="mr-1" /> 삭제
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
