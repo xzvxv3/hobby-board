@@ -209,13 +209,13 @@ export default function CommentSection({ postId }) {
                         value={newComment}
                         onChange={e => setNewComment(e.target.value)}
                         placeholder="댓글을 입력해주세요..."
-                        className="flex-1 min-h-[80px] p-4 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-800"
+                        className="flex-1 min-h-[80px] p-4 text-zinc-800 dark:text-zinc-300 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 resize-none focus:outline-none focus:ring-1 focus:ring-emerald-800"
                         disabled={isPending}
                     />
                     <button
                         type="submit"
                         disabled={isPending || !newComment.trim()}
-                        className="self-end px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition disabled:cursor-not-allowed flex items-center justify-center"
+                        className="self-end p-8 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition disabled:cursor-not-allowed flex items-center justify-center"
                     >
                         {isPending ? '등록 중...' : <Send size={20} />}
                     </button>
