@@ -16,6 +16,11 @@ export default async function EditPostPage(props) {
     const params = await props.params;
     const id = params.id;
 
+    const session = await auth();
+    if (!session?.user) {
+        redirect("/login");
+    }
+
     const post = await getPostForEdit(id);
 
     if (!post) {
