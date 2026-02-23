@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Button from "@/components/Button";
+import { auth } from "@/lib/auth";
 
 async function getPostForEdit(id) {
     const res = await fetch(`http://localhost:8080/api/posts/${id}/edit`, {
@@ -26,6 +27,26 @@ export default async function EditPostPage(props) {
                 </Link>
             </div>
         );
+    }
+
+    const isAuthor = post.author === session.user.name;
+
+    console.log("[권한 체크]", {
+        sessionUser: session.user.name,
+        postAuthor: post.author,
+        isAuthor,
+        postId: id
+    });
+
+    if (!isAuthor) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+                <p className="text-xl text-red-600 dark:text-red-400">이 게시글을 수정할 권한이 없습니다.</p>
+                <Link href={`/${id}`}>
+                    <Button variant="outline">게시글 보기</Button>
+                </Link>
+            </div>
+        )
     }
 
     async function updatePost(formData) {
