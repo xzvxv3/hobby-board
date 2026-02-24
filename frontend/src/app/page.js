@@ -2,7 +2,9 @@ import { Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lu
 import Link from "next/link";
 import PostCard from "@/components/PostCard";
 import Button from "@/components/Button";
-import { auth, signOut } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
+import { getServerSession } from "next-auth/next"; // V4 방식
+import { authOptions } from "@/lib/auth";
 
 // 데이터를 가져오는 비동기 함수
 async function getPosts(page) {
@@ -35,7 +37,7 @@ export default async function Home({ searchParams}) {
     displayPosts.push({ id: `empty-${displayPosts.length}`, isEmpty: true });
   }
 
-  const session = await auth();
+  const session = await getServerSession(authOptions);
 
   return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -59,14 +61,7 @@ export default async function Home({ searchParams}) {
                     </span>
 
                     {/* 로그아웃 버튼 */}
-                    <form
-                        action={async () => {
-                          "use server";
-                          await signOut({ redirectTo: "/" });
-                        }}
-                    >
-                      <Button variant="danger">로그아웃</Button>
-                    </form>
+                    <LogoutButton />
                   </div>
               ) : (
                   <Link href="/login">

@@ -1,6 +1,8 @@
 package com.project.hobby.domain.user.service;
 
 import com.project.hobby.domain.user.dto.UserJoinRequest;
+import com.project.hobby.domain.user.dto.UserLoginRequest;
+import com.project.hobby.domain.user.dto.UserResponse;
 import com.project.hobby.domain.user.entity.User;
 import com.project.hobby.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +38,19 @@ public class UserService {
                 .build();
 
         return userRepository.save(user).getId();
+    }
+
+    public UserResponse login(UserLoginRequest dto) {
+        // 1. 아이디로 유저 찾기
+        User user = userRepository.findByUsername(dto.username())
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 아이디입니다."));
+
+        // 2. 비밀번호 일치 확인 (BCrypt 사용)
+        if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 3. 로그인 성공 시 응답용 DTO 반환
+        return new UserResponse(user.getId(), user.getUsername());
     }
 }

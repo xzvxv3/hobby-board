@@ -45,4 +45,5 @@ public class User {
     public void updatePassword(String newPassword) {
         this.password = password;
     }
+
 }

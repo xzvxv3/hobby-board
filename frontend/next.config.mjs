@@ -5,14 +5,17 @@ const nextConfig = {
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
-    return [
-      {
-        // 프론트에서 /api/... 로 요청하면
-        source: '/api/:path*',
-        // 백엔드(8080)로 프록시
-        destination: `${backendUrl}/api/:path*`,
-      },
-    ]
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      // fallback: 동적 라우트(NextAuth 등)를 모두 확인한 후 매칭되지 않을 때만 프록시
+      fallback: [
+        {
+          source: '/api/:path*',
+          destination: `${backendUrl}/api/:path*`,
+        },
+      ],
+    }
   },
 }
 

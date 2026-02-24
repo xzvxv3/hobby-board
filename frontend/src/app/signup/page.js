@@ -51,18 +51,32 @@ export default function SignupPage() {
             return
         }
 
-        // 실제 회원가입 요청 (나중에 백엔드 연결)
         try {
-            // 임시로 성공했다고 가정하고 로그인 페이지로 이동
-            // 실제로는 fetch('http://localhost:8080/api/users/join', ...) 로 변경
-            console.log('회원가입 시도:', form)
+            // [수정된 부분] 실제 백엔드 API 호출
+            const response = await fetch('http://localhost:8080/api/users/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: form.username,
+                    password: form.password,
+                    passwordConfirm: form.passwordConfirm,
+                }),
+            });
 
-            alert('회원가입이 완료되었습니다!\n로그인 페이지로 이동합니다.')
-            router.push('/login')
+            if (response.ok) {
+                alert('회원가입이 완료되었습니다!\n로그인 페이지로 이동합니다.');
+                router.push('/login');
+            } else {
+                // 백엔드에서 던진 에러 메시지 처리 (예: 중복 아이디)
+                const errorData = await response.json();
+                setError(errorData.message || '회원가입에 실패했습니다.');
+            }
         } catch (err) {
-            setError('회원가입 중 오류가 발생했습니다')
+            setError('서버와 통신 중 오류가 발생했습니다.');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 

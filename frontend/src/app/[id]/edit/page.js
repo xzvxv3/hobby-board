@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Button from "@/components/Button";
-import { auth } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 async function getPostForEdit(id) {
     const res = await fetch(`http://localhost:8080/api/posts/${id}/edit`, {
@@ -16,7 +17,7 @@ export default async function EditPostPage(props) {
     const params = await props.params;
     const id = params.id;
 
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
         redirect("/login");
     }

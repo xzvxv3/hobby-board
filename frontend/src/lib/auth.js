@@ -2,12 +2,7 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
-export const {
-    handlers,
-    signIn,
-    signOut,
-    auth,
-} = NextAuth({
+export const authOptions = {
     providers: [
         Credentials({
             credentials: {
@@ -16,18 +11,37 @@ export const {
             },
 
             async authorize(credentials) {
-                if (!credentials?.username || !credentials?.password) {
-                    return null
-                }
+                try {
+                    const res = await fetch("http://localhost:8080/api/users/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            username: credentials.username,
+                            password: credentials.password,
+                        }),
+                    });
 
-                // 임시로 성공했다고 가정 (나중에 실제 백엔드 연결)
-                // 실제로는 fetch로 백엔드 호출
-                return {
-                    id: String(credentials.id),
-                    name: credentials.username,
-                    email: credentials.email || null,
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        let errorMessage = "아이디 또는 비밀번호가 일치하지 않습니다.";
+                        try {
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            console.error("JSON Parse Error", errorText);
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    const user = await res.json();
+                    if (user) {
+                        return { id: user.id, name: user.username };
+                    }
+                    return null;
+                } catch (err) {
+                    throw new Error(err.message);
                 }
-            },
+            }
         }),
     ],
 
@@ -54,6 +68,7 @@ export const {
         },
     },
 
-    // ★★★ 이 부분이 없으면 auth가 생성되지 않음 ★★★
     secret: process.env.AUTH_SECRET,
-})
+}
+
+export default NextAuth(authOptions)

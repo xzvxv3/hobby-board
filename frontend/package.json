@@ -11,10 +11,10 @@
   "dependencies": {
     "date-fns": "^4.1.0",
     "lucide-react": "^0.563.0",
-    "next": "16.1.4",
-    "next-auth": "^5.0.0-beta.30",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "next": "14.2.15",
+    "next-auth": "^4.24.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

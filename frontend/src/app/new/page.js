@@ -2,10 +2,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Button from "@/components/Button";
-import { auth } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export default async function NewPostPage() {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user) {
         redirect("/login");
