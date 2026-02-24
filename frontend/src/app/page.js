@@ -2,7 +2,6 @@ import { Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lu
 import Link from "next/link";
 import PostCard from "@/components/PostCard";
 import Button from "@/components/Button";
-import LogoutButton from "@/components/LogoutButton";
 import { getServerSession } from "next-auth/next"; // V4 방식
 import { authOptions } from "@/lib/auth";
 
@@ -61,7 +60,14 @@ export default async function Home({ searchParams}) {
                     </span>
 
                     {/* 로그아웃 버튼 */}
-                    <LogoutButton />
+                    <form
+                        action={async () => {
+                          "use server";
+                          await signOut({ redirectTo: "/" });
+                        }}
+                    >
+                      <Button variant="danger">로그아웃</Button>
+                    </form>
                   </div>
               ) : (
                   <Link href="/login">
