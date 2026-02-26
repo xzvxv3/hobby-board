@@ -5,8 +5,9 @@ import Button from "@/components/Button";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-async function getPostForEdit(id) {
-    const res = await fetch(`http://localhost:8080/api/posts/${id}/edit`, {
+async function getPost(id) {
+    // ✅ /edit 제거 + 환경변수로 변경
+    const res = await fetch(`${process.env.API_URL}/api/posts/${id}`, {
         cache: "no-store",
     });
     if (!res.ok) return null;
@@ -22,32 +23,26 @@ export default async function EditPostPage(props) {
         redirect("/login");
     }
 
-    const post = await getPostForEdit(id);
+    const post = await getPost(id);
 
     if (!post) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-4">
                 <p className="text-xl text-zinc-500">게시글을 찾을 수 없습니다.</p>
-                <Link href="/">
-                    <Button>목록으로</Button>
-                </Link>
+                <Link href="/"><Button>목록으로</Button></Link>
             </div>
         );
     }
 
-    const isAuthor = post.author === session.user.name;
-
-    console.log("[권한 체크]", {
-        sessionUser: session.user.name,
-        postAuthor: post.author,
-        isAuthor,
-        postId: id
-    });
+    const postAuthor = post.author
+    const isAuthor = postAuthor === session.user.name
 
     if (!isAuthor) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-                <p className="text-xl text-red-600 dark:text-red-400">이 게시글을 수정할 권한이 없습니다.</p>
+                <p className="text-xl text-red-600 dark:text-red-400">
+                    이 게시글을 수정할 권한이 없습니다.
+                </p>
                 <Link href={`/${id}`}>
                     <Button variant="outline">게시글 보기</Button>
                 </Link>
@@ -65,7 +60,8 @@ export default async function EditPostPage(props) {
             throw new Error("제목과 내용을 모두 입력해주세요.");
         }
 
-        const res = await fetch(`http://localhost:8080/api/posts/${id}`, {
+        // ✅ 환경변수로 변경
+        const res = await fetch(`${process.env.API_URL}/api/posts/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title, content }),
@@ -82,10 +78,7 @@ export default async function EditPostPage(props) {
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-4 py-12">
             <div className="mx-auto max-w-3xl">
                 <div className="mb-8">
-                    <Link
-                        href={`/${id}`}
-                        className="flex items-center gap-2 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
-                    >
+                    <Link href={`/${id}`} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
                         <ArrowLeft size={20} />
                         <span>뒤로</span>
                     </Link>

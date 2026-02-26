@@ -85,6 +85,12 @@ export default function CommentSection({ postId }) {
     const handleDelete = (commentId) => {
         if (!window.confirm('정말 이 댓글을 삭제하시겠습니까?')) return
 
+        console.log('삭제 시도:', {
+            url: `/api/posts/${postId}/comments/${commentId}`,
+            commentId,
+            postId,
+        })
+
         // 롤백을 위해 삭제 전 백업
         const backup = comments.find(c => c.id === commentId)
 
