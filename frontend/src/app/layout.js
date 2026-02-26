@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Toaster } from 'sonner'
 
 export const metadata = {
   title: "hobby-board",
@@ -10,6 +11,7 @@ export default function RootLayout({ children }) { // 이 레이아웃을 사용
       <html lang="ko" className="bg-zinc-50 dark:bg-zinc-950">
         <body className="bg-zinc-50 dark:bg-zinc-950">
             {children}
+            <Toaster position="top-center" richColors />
         </body>
       </html>
   );

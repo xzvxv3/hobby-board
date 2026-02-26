@@ -3,8 +3,8 @@
 import { useEffect, useState, useTransition } from 'react'
 import { format } from 'date-fns'
 import { Send, Trash2, Edit2, Check } from 'lucide-react'
+import { toast } from 'sonner'
 
-// 날짜 안전 포맷팅 헬퍼 함수
 const formatDate = (dateStr) => {
     if (!dateStr) return '날짜 정보 없음'
     try {
@@ -23,19 +23,14 @@ export default function CommentSection({ postId }) {
     const [editingCommentId, setEditingCommentId] = useState(null)
     const [editingContent, setEditingContent] = useState('')
 
-    // 댓글 목록 불러오기
     useEffect(() => {
         async function fetchComments() {
             try {
-                const res = await fetch(`/api/posts/${postId}/comments`, {
-                    cache: 'no-store'
-                })
-
+                const res = await fetch(`/api/posts/${postId}/comments`)
                 if (!res.ok) {
                     console.error('댓글 로드 실패', res.status)
                     return
                 }
-
                 const data = await res.json()
                 data.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
                 setComments(data)
@@ -47,7 +42,6 @@ export default function CommentSection({ postId }) {
         if (postId) fetchComments()
     }, [postId])
 
-    // 댓글 작성 (수동 optimistic)
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!newComment.trim()) return
@@ -58,29 +52,22 @@ export default function CommentSection({ postId }) {
             author: '나',
             content: newComment.trim(),
             createdAt: new Date().toISOString(),
-            isPending: true
+            isPending: true,
         }
 
-        // 즉시 추가 (optimistic)
         setComments(prev => [...prev, optimisticComment])
+        setNewComment('')  // ✅ 기존 finally에 있던 것을 즉시 초기화로 이동
 
         try {
             const res = await fetch(`/api/posts/${postId}/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    author: '나',
-                    content: newComment.trim()
-                })
+                body: JSON.stringify({ author: '나', content: optimisticComment.content }),
             })
 
-            if (!res.ok) {
-                throw new Error(await res.text())
-            }
+            if (!res.ok) throw new Error(await res.text())
 
             const newId = await res.json()
-
-            // 실제 ID로 교체
             setComments(prev =>
                 prev.map(c =>
                     c.id === tempId
@@ -90,63 +77,59 @@ export default function CommentSection({ postId }) {
             )
         } catch (err) {
             console.error('댓글 등록 실패:', err)
-            // 실패 시 제거
             setComments(prev => prev.filter(c => c.id !== tempId))
-            alert('댓글 등록에 실패했습니다.')
-        } finally {
-            setNewComment('')
+            toast.error('댓글 등록에 실패했습니다.')  // ✅ alert 대체
         }
     }
 
-    // 댓글 삭제 (수동 optimistic)
     const handleDelete = (commentId) => {
         if (!window.confirm('정말 이 댓글을 삭제하시겠습니까?')) return
 
-        // 즉시 삭제 (optimistic)
+        // 롤백을 위해 삭제 전 백업
+        const backup = comments.find(c => c.id === commentId)
+
         setComments(prev => prev.filter(c => c.id !== commentId))
 
         startTransition(async () => {
             try {
                 const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
                 })
-
-                if (!res.ok) {
-                    throw new Error('삭제 실패')
-                }
+                if (!res.ok) throw new Error('삭제 실패')
             } catch (err) {
                 console.error('댓글 삭제 실패:', err)
-                alert('댓글 삭제에 실패했습니다.')
-                // 실패 시 전체 새로고침으로 롤백 (가장 안전)
-                window.location.reload()
+                // ✅ window.location.reload() 대신 백업 데이터로 롤백
+                if (backup) {
+                    setComments(prev =>
+                        [...prev, backup].sort(
+                            (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+                        )
+                    )
+                }
+                toast.error('댓글 삭제에 실패했습니다.')  // ✅ alert 대체
             }
         })
     }
 
-    // 댓글 수정 시작
     const startEdit = (commentId, currentContent) => {
         setEditingCommentId(commentId)
         setEditingContent(currentContent)
     }
 
-    // 댓글 수정 취소
     const cancelEdit = () => {
         setEditingCommentId(null)
         setEditingContent('')
     }
 
-    // 댓글 수정 완료 (수동 optimistic)
     const handleUpdate = (commentId) => {
         if (!editingContent.trim()) {
-            alert('댓글 내용이 비어있습니다.')
+            toast.error('댓글 내용이 비어있습니다.')  // ✅ alert 대체
             return
         }
 
-        // 원본 백업 (실패 시 롤백용)
         const originalComment = comments.find(c => c.id === commentId)
         if (!originalComment) return
 
-        // 즉시 업데이트 (optimistic)
         setComments(prev =>
             prev.map(c =>
                 c.id === commentId
@@ -154,44 +137,31 @@ export default function CommentSection({ postId }) {
                     : c
             )
         )
-
-        // 편집 모드 종료
         setEditingCommentId(null)
         setEditingContent('')
 
         startTransition(async () => {
             try {
                 const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
-                    method: 'PUT', // 또는 PUT, 백엔드에 따라 조정
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: editingContent.trim()
-                    })
+                    body: JSON.stringify({ content: editingContent.trim() }),
                 })
+                if (!res.ok) throw new Error(await res.text())
 
-                if (!res.ok) {
-                    throw new Error(await res.text())
-                }
-
-                // 성공 시 pending 플래그 제거
                 setComments(prev =>
                     prev.map(c =>
-                        c.id === commentId
-                            ? { ...c, isPending: false }
-                            : c
+                        c.id === commentId ? { ...c, isPending: false } : c
                     )
                 )
             } catch (err) {
                 console.error('댓글 수정 실패:', err)
-                // 실패 시 원본으로 롤백
                 setComments(prev =>
                     prev.map(c =>
-                        c.id === commentId
-                            ? { ...originalComment, isPending: false }
-                            : c
+                        c.id === commentId ? { ...originalComment, isPending: false } : c
                     )
                 )
-                alert('댓글 수정에 실패했습니다.')
+                toast.error('댓글 수정에 실패했습니다.')  // ✅ alert 대체
             }
         })
     }
@@ -224,12 +194,17 @@ export default function CommentSection({ postId }) {
 
             {/* 댓글 목록 */}
             <div className="space-y-6">
+                {comments.length === 0 && (
+                    <p className="text-center text-zinc-400 py-8">
+                        첫 번째 댓글을 남겨보세요!
+                    </p>
+                )}
                 {comments.map(comment => (
                     <div
                         key={comment.id}
-                        className={`p-5 rounded-xl border ${
+                        className={`p-5 rounded-xl border transition-colors ${
                             comment.isPending
-                                ? 'bg-blue-50/50 border-blue-200 animate-pulse'
+                                ? 'bg-blue-50/50 border-blue-200 animate-pulse dark:bg-blue-950/20 dark:border-blue-900'
                                 : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800'
                         }`}
                     >
@@ -261,8 +236,8 @@ export default function CommentSection({ postId }) {
                                     <>
                                         <button
                                             onClick={() => handleUpdate(comment.id)}
-                                            className="hover:text-emerald-600 transition-colors flex items-center"
                                             disabled={!editingContent.trim()}
+                                            className="hover:text-emerald-600 transition-colors flex items-center disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             <Check size={16} className="mr-1" /> 완료
                                         </button>

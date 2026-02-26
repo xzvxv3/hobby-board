@@ -54,18 +54,14 @@ export const authOptions = {
     },
 
     callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id
+        async jwt({ token, user, account }) {
+            if (user?.rememberMe) {
+                token.maxAge = 30 * 24 * 60 * 60  // 30일
+            } else {
+                token.maxAge = 24 * 60 * 60        // 1일
             }
             return token
-        },
-        async session({ session, token }) {
-            if (token?.id) {
-                session.user.id = token.id
-            }
-            return session
-        },
+        }
     },
 
     secret: process.env.AUTH_SECRET,

@@ -4,8 +4,9 @@ import Link from "next/link"
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
+import { toast } from 'sonner'
 import Button from "@/components/Button"
-import CommentSection from "./components/CommentSection";
+import CommentSection from "./components/CommentSection"
 
 export default function PostDetailPage() {
     const router = useRouter()
@@ -15,50 +16,46 @@ export default function PostDetailPage() {
     const [post, setPost] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-
     const [isPending, startTransition] = useTransition()
 
-    // 삭제 핸들러
     const handleDelete = () => {
-        if (!confirm("정말 이 게시글을 삭제하시겠습니까?")) return;
+        if (!confirm("정말 이 게시글을 삭제하시겠습니까?")) return
 
         startTransition(async () => {
             try {
-                const res = await fetch(`http://localhost:8080/api/posts/${id}`, {
+                const res = await fetch(`/api/posts/${id}`, {
                     method: "DELETE",
                 })
 
                 if (res.ok) {
+                    toast.success('게시글이 삭제되었습니다.')
                     router.replace("/")
                     router.refresh()
                 } else {
-                    alert("삭제에 실패했습니다.")
+                    toast.error('삭제에 실패했습니다.')
                 }
             } catch (err) {
                 console.error(err)
-                alert("삭제 중 오류가 발생했습니다.")
+                toast.error('삭제 중 오류가 발생했습니다.')
             }
         })
     }
 
-    // 데이터 불러오기 (클라이언트 사이드)
     useEffect(() => {
         if (!id) return
 
         async function fetchPost() {
             try {
                 setLoading(true)
-                const res = await fetch(`http://localhost:8080/api/posts/${id}`, {
-                    cache: "no-store",
-                })
+                const res = await fetch(`/api/posts/${id}`)  // ✅ 상대경로로 변경
 
                 if (!res.ok) {
                     const message = res.status === 404
                         ? "게시글을 찾을 수 없습니다."
-                        : "서버 오류가 발생했습니다.";
-                    setError(message);
-                    setPost(null);
-                    return;
+                        : "서버 오류가 발생했습니다."
+                    setError(message)
+                    setPost(null)
+                    return
                 }
 
                 const data = await res.json()
@@ -70,22 +67,28 @@ export default function PostDetailPage() {
             }
         }
 
-        fetchPost().catch(err => console.error(err));
+        fetchPost().catch(err => console.error(err))
     }, [id])
 
     if (loading) {
-        return <div className="p-8 text-center">로딩 중...</div>
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+            </div>
+        )
     }
 
     if (error || !post) {
         return (
             <div className="flex h-screen flex-col items-center justify-center gap-4">
-                <p className="text-xl font-semibold text-zinc-500"> {error || "게시글을 찾을 수 없습니다."} </p>
+                <p className="text-xl font-semibold text-zinc-500">
+                    {error || "게시글을 찾을 수 없습니다."}
+                </p>
                 <Link href="/">
                     <Button>목록으로 돌아가기</Button>
                 </Link>
             </div>
-        );
+        )
     }
 
     return (
@@ -131,8 +134,9 @@ export default function PostDetailPage() {
                         </p>
                     </div>
                 </article>
+
                 <CommentSection postId={id} />
             </div>
         </div>
-    );
+    )
 }

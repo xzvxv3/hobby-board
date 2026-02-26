@@ -1,6 +1,6 @@
 export async function getPosts(page) {
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api?page=${page - 1}`,
+        `${process.env.API_URL}/api?page=${page - 1}`,
         { cache: "no-store" }
     );
 
