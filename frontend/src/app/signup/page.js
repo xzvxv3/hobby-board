@@ -1,12 +1,18 @@
 'use client'
 
+// React 훅 + Next.js 네비게이션
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
+// lucide-react 아이콘들
 import { ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react'
+// 토스트 알림 라이브러리
 import { toast } from 'sonner'
+// 커스텀 폼 상태 관리 훅
 import { useForm } from '@/hooks/useForm'
 
+// HTTP 상태 코드별 에러 메시지 매핑 함수
 function getErrorMessageByStatus(status) {
     switch (status) {
         case 400: return '입력값을 확인해주세요.'
@@ -16,23 +22,31 @@ function getErrorMessageByStatus(status) {
     }
 }
 
+// 회원가입 페이지 컴포넌트
 export default function SignupPage() {
     const router = useRouter()
+
+    // 서버 액션/페이지 전환 진행 중 상태
     const [isPending, startTransition] = useTransition()
+    // 비밀번호 표시/숨김 토글 (첫 번째 필드)
     const [showPassword, setShowPassword] = useState(false)
+    // 비밀번호 확인 필드 표시/숨김 토글
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
 
+    // 폼 상태 + 에러 + 로딩 + onChange 통합 관리
     const { form, error, setError, loading, setLoading, handleChange } = useForm({
         username: '',
         password: '',
         passwordConfirm: '',
     })
 
+    // 회원가입 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
         setLoading(true)
 
+        // 클라이언트 측 기본 검증
         if (!form.username.trim()) {
             setError('아이디를 입력해주세요.')
             setLoading(false)
@@ -50,6 +64,7 @@ export default function SignupPage() {
         }
 
         try {
+            // 회원가입 API 호출
             const response = await fetch('/api/users/join', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -62,10 +77,12 @@ export default function SignupPage() {
 
             if (response.ok) {
                 toast.success('회원가입이 완료되었습니다!')
+                // 성공 시 로그인 페이지로 이동
                 startTransition(() => {
                     router.push('/login')
                 })
             } else {
+                // 서버 에러 메시지 우선 사용, 없으면 상태코드 기반 기본 메시지
                 let errorMessage = getErrorMessageByStatus(response.status)
                 try {
                     const errorData = await response.json()
@@ -85,6 +102,7 @@ export default function SignupPage() {
             <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
                 <div className="w-full max-w-md space-y-8">
 
+                    {/* 로고 + 뒤로가기 */}
                     <div className="flex items-center gap-3">
                         <Link href="/" className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
                             <ArrowLeft size={20} />
@@ -94,6 +112,7 @@ export default function SignupPage() {
                         </h1>
                     </div>
 
+                    {/* 페이지 제목 + 안내 */}
                     <div className="text-center">
                         <h2 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-200">회원가입</h2>
                         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -101,17 +120,18 @@ export default function SignupPage() {
                         </p>
                     </div>
 
+                    {/* 폼 컨테이너 */}
                     <div className="mt-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
                         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
 
-                            {/* 에러 메시지 */}
+                            {/* 에러 메시지 표시 영역 */}
                             {error && (
                                 <div className="rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 p-3 text-sm text-red-700 dark:text-red-400">
                                     {error}
                                 </div>
                             )}
 
-                            {/* 아이디 */}
+                            {/* 아이디 입력 */}
                             <div>
                                 <label htmlFor="username" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                     아이디
@@ -131,7 +151,7 @@ export default function SignupPage() {
                                 </div>
                             </div>
 
-                            {/* 비밀번호 */}
+                            {/* 비밀번호 입력 + 표시 토글 */}
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                     비밀번호
@@ -158,7 +178,7 @@ export default function SignupPage() {
                                 </div>
                             </div>
 
-                            {/* 비밀번호 확인 */}
+                            {/* 비밀번호 확인 입력 + 표시 토글 */}
                             <div>
                                 <label htmlFor="passwordConfirm" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                     비밀번호 확인
@@ -185,7 +205,7 @@ export default function SignupPage() {
                                 </div>
                             </div>
 
-                            {/* 가입 버튼 */}
+                            {/* 회원가입 제출 버튼 */}
                             <button
                                 type="submit"
                                 disabled={loading || isPending}
@@ -196,6 +216,7 @@ export default function SignupPage() {
                             </button>
                         </form>
 
+                        {/* 구분선 + 로그인 페이지 링크 */}
                         <div className="px-6 sm:px-8 pb-8">
                             <div className="relative my-6">
                                 <div className="absolute inset-0 flex items-center">
@@ -216,6 +237,7 @@ export default function SignupPage() {
                 </div>
             </div>
 
+            {/* 푸터 */}
             <footer className="py-6 text-center text-sm text-zinc-500 dark:text-zinc-600">
                 © {new Date().getFullYear()} hobby-board
             </footer>

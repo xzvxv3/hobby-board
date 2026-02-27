@@ -1,42 +1,60 @@
 'use client'
 
+// React 기본 훅 + Next.js 네비게이션
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
+// lucide-react 아이콘들
 import { LogIn, ArrowLeft, Eye, EyeOff, Clock } from 'lucide-react'
+// NextAuth 클라이언트 사이드 로그인 함수
 import { signIn } from 'next-auth/react'
+// 커스텀 폼 상태 관리 훅 (value, onChange, error 등 통합 관리)
 import { useForm } from '@/hooks/useForm'
 
+// 로그인 페이지 컴포넌트
 export default function LoginPage() {
     const router = useRouter()
+
+    // 서버 액션/페이지 전환 진행 중 상태
     const [isPending, startTransition] = useTransition()
+    // 비밀번호 표시/숨김 토글
     const [showPassword, setShowPassword] = useState(false)
+    // 로그인 상태 유지 체크박스
     const [rememberMe, setRememberMe] = useState(false)
+    // 연속 로그인 실패 횟수 카운터
     const [failCount, setFailCount] = useState(0)
+    // 로그인 차단 남은 초 (브루트포스 방어)
     const [blockedSeconds, setBlockedSeconds] = useState(0)
 
+    // 폼 상태 + 에러 + 로딩 + onChange 통합 관리
     const { form, error, setError, loading, setLoading, handleChange } = useForm({
         username: '',
         password: '',
     })
 
+    // 현재 차단 상태인지 여부
     const isBlocked = blockedSeconds > 0
 
+    // 차단 시간 카운트다운 타이머
     useEffect(() => {
         if (blockedSeconds <= 0) return
+
         const timer = setInterval(() => {
             setBlockedSeconds((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer)
-                    setFailCount(0)
+                    setFailCount(0)           // 차단 해제 시 실패 카운트 초기화
                     return 0
                 }
                 return prev - 1
             })
         }, 1000)
+
         return () => clearInterval(timer)
     }, [blockedSeconds])
 
+    // 로그인 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (isBlocked) return
@@ -45,21 +63,24 @@ export default function LoginPage() {
         setLoading(true)
 
         try {
+            // NextAuth credentials 프로바이더로 로그인 시도
             const result = await signIn('credentials', {
                 username: form.username,
                 password: form.password,
-                rememberMe,
-                redirect: false,
+                rememberMe,                // 세션 유지 옵션 전달
+                redirect: false,           // 리다이렉트는 직접 제어
             })
 
+            // 로그인 성공
             if (result?.ok) {
                 startTransition(() => {
                     router.push('/')
-                    router.refresh()
+                    router.refresh()       // 캐시 갱신 및 세션 반영
                 })
                 return
             }
 
+            // 서버에서 429 Too Many Requests 응답 → 차단 시간 적용
             if (result?.status === 429) {
                 const seconds = parseInt(result?.error?.match(/\d+/)?.[0]) || 60
                 setBlockedSeconds(seconds)
@@ -67,6 +88,7 @@ export default function LoginPage() {
                 return
             }
 
+            // 일반 로그인 실패
             setFailCount((prev) => prev + 1)
             setError(result?.error || '아이디 또는 비밀번호를 확인해주세요.')
 
@@ -82,6 +104,7 @@ export default function LoginPage() {
             <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
                 <div className="w-full max-w-md space-y-8">
 
+                    {/* 로고 + 뒤로가기 */}
                     <div className="flex items-center gap-3">
                         <Link href="/" className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
                             <ArrowLeft size={20} />
@@ -91,6 +114,7 @@ export default function LoginPage() {
                         </h1>
                     </div>
 
+                    {/* 페이지 제목 + 안내 */}
                     <div className="text-center">
                         <h2 className="mt-2 text-2xl font-semibold text-zinc-800 dark:text-zinc-200">로그인</h2>
                         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -98,10 +122,11 @@ export default function LoginPage() {
                         </p>
                     </div>
 
+                    {/* 폼 컨테이너 */}
                     <div className="mt-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
                         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
 
-                            {/* 차단 메시지 */}
+                            {/* 로그인 차단 알림 */}
                             {isBlocked && (
                                 <div className="rounded-lg bg-orange-50 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-900 p-4">
                                     <div className="flex items-center gap-2 text-orange-700 dark:text-orange-400 font-medium mb-1">
@@ -111,6 +136,7 @@ export default function LoginPage() {
                                     <p className="text-sm text-orange-600 dark:text-orange-500">
                                         {blockedSeconds}초 후에 다시 시도할 수 있습니다.
                                     </p>
+                                    {/* 진행률 바 */}
                                     <div className="mt-3 h-1.5 w-full bg-orange-200 dark:bg-orange-900 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-orange-500 rounded-full transition-all duration-1000"
@@ -120,7 +146,7 @@ export default function LoginPage() {
                                 </div>
                             )}
 
-                            {/* 일반 에러 메시지 */}
+                            {/* 일반 로그인 실패 메시지 + 경고 */}
                             {error && !isBlocked && (
                                 <div className="rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 p-3 text-sm text-red-700 dark:text-red-400">
                                     <p>{error}</p>
@@ -132,7 +158,7 @@ export default function LoginPage() {
                                 </div>
                             )}
 
-                            {/* 아이디 */}
+                            {/* 아이디(또는 이메일) 입력 */}
                             <div>
                                 <label htmlFor="username" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                     아이디 또는 이메일
@@ -153,7 +179,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {/* 비밀번호 */}
+                            {/* 비밀번호 입력 + 표시 토글 */}
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                                     비밀번호
@@ -181,7 +207,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {/* 로그인 상태 유지 + 비밀번호 찾기 */}
+                            {/* 로그인 유지 + 비밀번호 찾기 링크 */}
                             <div className="flex items-center justify-between text-sm">
                                 <label className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 cursor-pointer">
                                     <input
@@ -214,6 +240,7 @@ export default function LoginPage() {
                             </button>
                         </form>
 
+                        {/* 구분선 + 회원가입 안내 */}
                         <div className="px-6 sm:px-8 pb-8">
                             <div className="relative my-6">
                                 <div className="absolute inset-0 flex items-center">
@@ -234,6 +261,7 @@ export default function LoginPage() {
                 </div>
             </div>
 
+            {/* 푸터 */}
             <footer className="py-6 text-center text-sm text-zinc-500 dark:text-zinc-600">
                 © {new Date().getFullYear()} hobby-board. All rights reserved.
             </footer>
