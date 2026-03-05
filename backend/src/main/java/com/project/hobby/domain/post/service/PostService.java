@@ -1,5 +1,6 @@
 package com.project.hobby.domain.post.service;
 
+import com.project.hobby.domain.comment.repository.CommentRepository;
 import com.project.hobby.domain.post.repository.PostRepository;
 import com.project.hobby.domain.post.dto.*;
 import com.project.hobby.domain.post.entity.Post;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 신규 게시글을 생성하여 저장합니다.
@@ -90,6 +92,7 @@ public class PostService {
     public void delete(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다 id=" + id));
+        commentRepository.deleteAllByPostId(id);
         postRepository.delete(post);
     }
 }
